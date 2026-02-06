@@ -1,0 +1,71 @@
+[build-system]
+requires = ["setuptools>=64", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "covinspector"
+version = "0.1.0"
+description = "Coverage inspector for targeted sequencing QC (hg38)"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.9"
+authors = [
+    {name = "covinspector developers"},
+]
+keywords = ["bioinformatics", "coverage", "sequencing", "quality-control", "hg38"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
+dependencies = [
+    "pysam>=0.22",
+    "numpy>=1.24",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7",
+    "pytest-timeout>=2",
+]
+dev = [
+    "ruff",
+    "covinspector[test]",
+]
+
+[project.scripts]
+covinspector = "covinspector.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/covinspector/covinspector"
+Repository = "https://github.com/covinspector/covinspector"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+covinspector = [
+    "data/*.tsv.gz",
+    "data/*.tsv.gz.tbi",
+    "data/*.bed.gz",
+    "data/*.bed.gz.tbi",
+    "data/*.json.gz",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+timeout = 120
+
+[tool.ruff]
+target-version = "py39"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]

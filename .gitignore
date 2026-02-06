@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+.pytest_cache/
+*.bam
+*.bam.bai
+*.cram
+*.crai
+.ruff_cache/

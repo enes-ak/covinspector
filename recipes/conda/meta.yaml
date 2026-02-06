@@ -1,0 +1,149 @@
+{% set name = "covinspector" %}
+{% set version = "0.1.0" %}
+
+package:
+  name: {{ name }}
+  version: {{ version }}
+
+source:
+  url: https://github.com/covinspector/covinspector/archive/v{{ version }}.tar.gz
+  sha256: PLACEHOLDER_SHA256
+
+build:
+  number: 0
+  noarch: python
+  entry_points:
+    - covinspector = covinspector.cli:main
+  script: {{ PYTHON }} -m pip install . --no-deps --no-build-isolation -vvv
+  run_exports:
+    - {{ pin_subpackage(name, max_pin="x.x") }}
+
+requirements:
+  host:
+    - python >=3.9
+    - pip
+    - setuptools >=64
+    - setuptools-scm >=8
+  run:
+    - python >=3.9
+    - pysam >=0.22
+    - numpy >=1.24
+    - samtools >=1.17
+    - htslib >=1.17
+    - tabix
+  run_constrained:
+    # mosdepth is optional but recommended; constrain version if present
+    - mosdepth >=0.3.4
+
+test:
+  imports:
+    - covinspector
+    - covinspector.cli
+    - covinspector.engines
+    - covinspector.annotation
+  requires:
+    - pytest
+    - samtools
+  commands:
+    # Version check
+    - covinspector --version
+
+    # Generate minimal synthetic test BAM (10 reads over a tiny region)
+    # This avoids shipping BAM files in the package and needs no network.
+    - |
+      python -c "
+      import pysam
+      import os
+
+      header = {
+          'HD': {'VN': '1.6', 'SO': 'coordinate'},
+          'SQ': [{'SN': 'chr17', 'LN': 83257441}],
+          'RG': [{'ID': 'test', 'SM': 'TEST_SAMPLE', 'PL': 'ILLUMINA'}]
+      }
+
+      bam_path = 'test_synthetic.bam'
+      with pysam.AlignmentFile(bam_path, 'wb', header=header) as outf:
+          for i in range(200):
+              a = pysam.AlignedSegment()
+              a.query_name = f'read_{i}'
+              a.query_sequence = 'A' * 150
+              a.flag = 0
+              a.reference_id = 0
+              a.reference_start = 43044294 + (i * 400)
+              a.mapping_quality = 60
+              a.cigar = [(0, 150)]
+              a.query_qualities = pysam.qualitystring_to_array('I' * 150)
+              a.set_tag('RG', 'test')
+              outf.write(a)
+
+      pysam.sort('-o', 'test_sorted.bam', bam_path)
+      pysam.index('test_sorted.bam')
+      os.remove(bam_path)
+      "
+
+    # Smoke test: gene mode
+    - covinspector test_sorted.bam BRCA1 --raw-out test_raw.tsv --report-out test_report.md --engine samtools
+    - test -f test_raw.tsv
+    - test -f test_report.md
+
+    # Verify raw TSV has required columns
+    - |
+      python -c "
+      with open('test_raw.tsv') as f:
+          lines = [l for l in f if not l.startswith('#covinspector')]
+          header = lines[0].strip().split('\t')
+          required = ['target_id', 'contig', 'start', 'end', 'length_bp',
+                      'mean_depth', 'median_depth', 'min_depth', 'max_depth',
+                      'pct_zero', 'pct_ge_20', 'engine_used', 'build']
+          for col in required:
+              assert col in header, f'Missing column: {col}'
+          assert len(lines) >= 2, 'Expected at least header + 1 data row'
+          data = lines[1].strip().split('\t')
+          assert data[header.index('target_id')] == 'BRCA1'
+          assert data[header.index('build')] == 'hg38'
+          print('All TSV checks passed.')
+      "
+
+    # Verify report contains expected sections
+    - |
+      python -c "
+      with open('test_report.md') as f:
+          content = f.read()
+          assert '# covinspector Coverage Report' in content
+          assert 'BRCA1' in content
+          assert 'GENCODE v44' in content or 'gencode_v44' in content
+          assert 'hg38' in content
+          print('All report checks passed.')
+      "
+
+    # Smoke test: region mode
+    - covinspector test_sorted.bam chr17:43044295-43125482 --raw-out test_region.tsv --report-out test_region.md --engine samtools
+    - test -f test_region.tsv
+
+    # Cleanup
+    - rm -f test_sorted.bam test_sorted.bam.bai test_raw.tsv test_report.md test_region.tsv test_region.md
+
+about:
+  home: https://github.com/covinspector/covinspector
+  license: MIT
+  license_family: MIT
+  license_file: LICENSE
+  summary: Coverage inspector for targeted sequencing QC (hg38)
+  description: |
+    covinspector computes per-target and per-exon depth metrics from
+    BAM/CRAM files, producing a machine-readable raw TSV and a
+    human-readable interpreted report with PASS/FAIL classifications.
+    Supports gene symbols, genomic regions, and BED files as input.
+    Ships with a bundled GENCODE v44 hg38 gene index — no internet
+    or GTF files required at runtime.
+  dev_url: https://github.com/covinspector/covinspector
+  doc_url: https://github.com/covinspector/covinspector/blob/main/README.md
+
+extra:
+  recipe-maintainers:
+    - YOUR_GITHUB_USERNAME
+  identifiers:
+    - biotools:covinspector
+  additional-platforms:
+    - linux-aarch64
+    - osx-arm64
