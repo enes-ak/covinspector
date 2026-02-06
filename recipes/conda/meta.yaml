@@ -7,7 +7,7 @@ package:
 
 source:
   url: https://github.com/enes-ak/covsnap/archive/v{{ version }}.tar.gz
-  sha256: 1d656c2943ac315b03554f481921a0b7f8ea3bb92e98dc38b08be752b96ccf34
+  sha256: e5a5f0d0d287b0d6fb4890d80812aba10f56f10cf5f2444d06af95a43659f80e
 
 build:
   number: 0
@@ -49,12 +49,12 @@ test:
     - recipes/conda/test_verify_report.py
   commands:
     - covsnap --version
-    - python test_generate_bam.py
+    - python recipes/conda/test_generate_bam.py
     - covsnap test_sorted.bam BRCA1 --raw-out test_raw.tsv --report-out test_report.md --engine samtools
     - test -f test_raw.tsv
     - test -f test_report.md
-    - python test_verify_tsv.py
-    - python test_verify_report.py
+    - python recipes/conda/test_verify_tsv.py
+    - python recipes/conda/test_verify_report.py
     - covsnap test_sorted.bam chr17:43044295-43125482 --raw-out test_region.tsv --report-out test_region.md --engine samtools
     - test -f test_region.tsv
     - rm -f test_sorted.bam test_sorted.bam.bai test_raw.tsv test_report.md test_region.tsv test_region.md
