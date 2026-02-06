@@ -1,0 +1,94 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install ruff
+      - run: ruff check src/ tests/
+      - run: ruff format --check src/ tests/
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install samtools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y samtools
+
+      - name: Install package and test dependencies
+        run: |
+          pip install -e ".[test]"
+
+      - name: Run tests
+        run: |
+          pytest tests/ -v --tb=short --timeout=120
+
+  test-with-mosdepth:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install samtools and mosdepth
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y samtools
+          # Install mosdepth from GitHub releases
+          wget -q https://github.com/brentp/mosdepth/releases/download/v0.3.8/mosdepth -O /usr/local/bin/mosdepth
+          chmod +x /usr/local/bin/mosdepth
+
+      - name: Install package and test dependencies
+        run: |
+          pip install -e ".[test]"
+
+      - name: Run tests (with mosdepth available)
+        run: |
+          pytest tests/ -v --tb=short --timeout=120
+
+  conda-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          channels: conda-forge,bioconda,defaults
+          channel-priority: strict
+
+      - name: Install conda-build
+        shell: bash -l {0}
+        run: |
+          conda install -y conda-build conda-verify
+
+      - name: Build conda package
+        shell: bash -l {0}
+        run: |
+          conda build recipes/conda/ --no-anaconda-upload
+
+      - name: Test conda package
+        shell: bash -l {0}
+        run: |
+          conda build recipes/conda/ --test
