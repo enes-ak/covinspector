@@ -6,7 +6,7 @@ package:
   version: {{ version }}
 
 source:
-  url: https://github.com/covinspector/covinspector/archive/v{{ version }}.tar.gz
+  url: https://github.com/enes-ak/covinspector/archive/v{{ version }}.tar.gz
   sha256: PLACEHOLDER_SHA256
 
 build:
@@ -124,7 +124,7 @@ test:
     - rm -f test_sorted.bam test_sorted.bam.bai test_raw.tsv test_report.md test_region.tsv test_region.md
 
 about:
-  home: https://github.com/covinspector/covinspector
+  home: https://github.com/enes-ak/covinspector
   license: MIT
   license_family: MIT
   license_file: LICENSE
@@ -136,12 +136,12 @@ about:
     Supports gene symbols, genomic regions, and BED files as input.
     Ships with a bundled GENCODE v44 hg38 gene index — no internet
     or GTF files required at runtime.
-  dev_url: https://github.com/covinspector/covinspector
-  doc_url: https://github.com/covinspector/covinspector/blob/main/README.md
+  dev_url: https://github.com/enes-ak/covinspector
+  doc_url: https://github.com/enes-ak/covinspector/blob/main/README.md
 
 extra:
   recipe-maintainers:
-    - YOUR_GITHUB_USERNAME
+    - enes-ak
   identifiers:
     - biotools:covinspector
   additional-platforms:
