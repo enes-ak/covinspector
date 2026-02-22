@@ -1,5 +1,9 @@
 # covsnap
 
+[![Bioconda](https://img.shields.io/conda/vn/bioconda/covsnap.svg)](https://anaconda.org/bioconda/covsnap)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18732742.svg)](https://doi.org/10.5281/zenodo.18732742)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 **Coverage inspector for targeted sequencing QC (hg38)**
 
 covsnap computes per-target (and optionally per-exon) depth-of-coverage metrics from BAM/CRAM files aligned to the human reference genome **hg38**. It produces a machine-readable TSV alongside a human-readable Markdown report with automated PASS/FAIL classification heuristics — designed for clinical and research sequencing QC workflows.
