@@ -23,6 +23,12 @@ covsnap computes per-target (and optionally per-exon) depth-of-coverage metrics 
 
 ## Installation
 
+### From Bioconda (recommended)
+
+```bash
+conda install -c bioconda covsnap
+```
+
 ### From source (pip)
 
 ```bash
