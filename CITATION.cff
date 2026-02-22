@@ -16,6 +16,7 @@ keywords:
 authors:
   - family-names: "Ak"
     given-names: "Enes"
+    orcid: "https://orcid.org/0000-0001-5931-730X"
 abstract: >-
   covsnap computes per-target and per-exon depth metrics from
   BAM/CRAM files aligned to hg38, producing machine-readable metrics
