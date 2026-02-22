@@ -2,10 +2,10 @@ cff-version: 1.2.0
 message: "If you use covsnap, please cite it using these metadata."
 title: "covsnap: Coverage inspector for targeted sequencing QC"
 type: software
-version: 0.1.0
-date-released: "2026-02-06"
+version: 0.1.1
+date-released: "2026-02-22"
 license: MIT
-repository-code: "https://github.com/covsnap/covsnap"
+repository-code: "https://github.com/enes-ak/covsnap"
 keywords:
   - bioinformatics
   - coverage
@@ -14,9 +14,8 @@ keywords:
   - targeted-sequencing
   - hg38
 authors:
-  - family-names: "LAST_NAME"
-    given-names: "FIRST_NAME"
-    orcid: "https://orcid.org/0000-0000-0000-0000"
+  - family-names: "Ak"
+    given-names: "Enes"
 abstract: >-
   covsnap computes per-target and per-exon depth metrics from
   BAM/CRAM files aligned to hg38, producing machine-readable metrics
